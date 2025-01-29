@@ -1,5 +1,7 @@
-﻿namespace TcpChatServer;
-using static Package11207Helper;
+﻿using ExplosiveCatsEnums;
+
+namespace TcpChatServer;
+using static PackageHelper;
 
 public class PackageBuilder
 {
@@ -7,10 +9,10 @@ public class PackageBuilder
 
     public PackageBuilder(int sizeOfContent)
     {
-        if (sizeOfContent > MaxSizeOfContent)
+        if (sizeOfContent > MaxPacketSize)
         {
             throw new ArgumentException(
-                $"size of content must be less or equal {nameof(MaxSizeOfContent)}",
+                $"size of content must be less or equal {nameof(MaxPacketSize)}",
                 nameof(sizeOfContent));
         }
 
@@ -21,42 +23,18 @@ public class PackageBuilder
     private void CreateBasePackage()
     {
         Array.Copy(BasePackage, _package, BasePackage.Length);
-        
-        _package[^1] = LastByte;
     }
 
-    public PackageBuilder WithCommand(SupportCommand command)
+    public PackageBuilder WithCommand(ActionType command)
     {
-        _package[Command] = (byte)command;
+        _package[Action] = (byte)command;
 
         return this;
     }
 
-    public PackageBuilder WithFullness(FullnessPackage fullness)
+    public PackageBuilder WithCard(CardType card)
     {
-        _package[Fullness] = (byte)fullness;
-
-        return this;
-    }
-    
-    public PackageBuilder WithQueryType(QueryType queryType)
-    {
-        _package[Query] = (byte)queryType;
-
-        return this;
-    }
-
-    public PackageBuilder WithContent(byte[] content)
-    {
-        if (content.Length > _package.Length - MaxFreeBytes)
-        {
-            throw new ArgumentException(nameof(content));
-        }
-
-        for (var i = 0; i < content.Length; i++)
-        {
-            _package[i + MaxFreeBytes - 1] = content[i];
-        }
+        _package[CardType] = (byte)card;
 
         return this;
     }

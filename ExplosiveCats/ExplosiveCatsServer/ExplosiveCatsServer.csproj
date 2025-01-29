@@ -8,4 +8,8 @@
         <RootNamespace>ExplosiveCats</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ExplosiveCatsEnums\ExplosiveCatsEnums.csproj" />
+    </ItemGroup>
+
 </Project>

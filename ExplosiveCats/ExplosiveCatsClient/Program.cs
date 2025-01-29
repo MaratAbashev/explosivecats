@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using TcpChatServer;
-using static TcpChatServer.Package11207Helper;
+using static TcpChatServer.PackageHelper;
 using System.Collections.Generic;
 
 var clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -70,7 +70,7 @@ async Task<string> GetResponse(Socket socket)
     {
         var contentLength = await socket.ReceiveAsync(buffer, SocketFlags.None);
         
-        if (!IsResponse(buffer[Query]) || !IsSay(buffer[Command]))
+        if (!IsResponse(buffer[Query]) || !IsSay(buffer[PackageHelper.Action]))
         {
             return "Получили неизвестный ответ от сервера!";
         }
