@@ -2,12 +2,12 @@
 using System.Text;
 using TcpChatServer;
 using static TcpChatServer.Package11207Helper;
+using System.Collections.Generic;
 
 var clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 try
 {
     await clientSocket.ConnectAsync("localhost", 5000);
-
     Console.WriteLine("Кто ты, воин?");
     var name = Console.ReadLine();
 
