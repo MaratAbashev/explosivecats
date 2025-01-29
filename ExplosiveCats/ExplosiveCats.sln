@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExplosiveCatsServer", "Expl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExplosiveCatsClient", "ExplosiveCatsClient\ExplosiveCatsClient.csproj", "{392BC1A3-6F45-4E7B-9EAF-3807E593A4BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExplosiveCatsEnums", "ExplosiveCatsEnums\ExplosiveCatsEnums.csproj", "{FD19339E-114B-4BD7-ADF2-C9104A4F80C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{392BC1A3-6F45-4E7B-9EAF-3807E593A4BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{392BC1A3-6F45-4E7B-9EAF-3807E593A4BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{392BC1A3-6F45-4E7B-9EAF-3807E593A4BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD19339E-114B-4BD7-ADF2-C9104A4F80C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD19339E-114B-4BD7-ADF2-C9104A4F80C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD19339E-114B-4BD7-ADF2-C9104A4F80C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD19339E-114B-4BD7-ADF2-C9104A4F80C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
