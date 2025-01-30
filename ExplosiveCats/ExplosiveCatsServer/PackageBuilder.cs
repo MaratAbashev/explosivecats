@@ -31,7 +31,7 @@ public class PackageBuilder
 
         return this;
     }
-
+    
     public PackageBuilder WithCard(CardType card)
     {
         _package[CardType] = (byte)card;

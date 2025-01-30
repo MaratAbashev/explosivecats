@@ -5,13 +5,13 @@ namespace TcpChatServer;
 
 public static class PackageHelper
 {
-    public const int MaxPacketSize = 12;
+    public const int MaxPacketSize = 14;
     public const int MaxFreeBytes = MaxPacketSize;
     
-    
-    public const int Action = 4;
-    public const int CardType = 5;
-    
+    public const int PlayersCount = 4;
+    public const int Action = 5;
+    public const int PlayerId = 6;
+    public const int CardType = 7;
     
     public static readonly byte[] BasePackage = 
     {
