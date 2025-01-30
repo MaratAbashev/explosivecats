@@ -99,12 +99,8 @@ public class TcpServer
                     _clients[socket].IsReady = true;
                     if (_clients.Select(pair => pair.Value).All(player => player.IsReady))
                     {
-                        lock (_lock)
-                        {
-                            //игра создается когда все готовы
-                            _game ??= new Game();
-                        }
-                        byte[] message = SendCards();
+                        _game = Game.GameValue;
+                        byte[] message = _game.DistributeCards();
                         await BroadcastMessageAsync(message, ctxSource.Token);
                     }
                 }
