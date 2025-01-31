@@ -14,7 +14,7 @@ public static class PackageHelper
     public const int ExplosiveCatInsertionId = 6;
     public const int AnotherPlayerId = 7;
     public const int SecondCardType = 7;
-    public const int PlayersCount = 15;
+    public const int PlayersCount = 14;
 
     public static readonly byte[] BasePackage =
     {
