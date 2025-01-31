@@ -2,6 +2,7 @@
 
 public enum CardType: byte
 {
+    None = 0,
     Defuse = 1,
     Attack = 7,
     Favor = 11,
