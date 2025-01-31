@@ -1,41 +1,64 @@
-﻿using System.Text;
-using ExplosiveCatsEnums;
-
-namespace TcpChatServer;
+﻿using ExplosiveCatsEnums;
+using ActionType = ExplosiveCatsEnums.ActionType;
+namespace ExplosiveCats;
 
 public static class PackageHelper
 {
-    public const int MaxPacketSize = 14;
-    public const int MaxFreeBytes = MaxPacketSize;
+    public const int MaxPacketSize = 15;
+    public const int MaxBasePacketBytes = 5;
+    public const int MaxFreeBytes = MaxPacketSize - MaxBasePacketBytes;
     
-    public const int PlayersCount = 4;
-    public const int Action = 5;
-    public const int PlayerId = 6;
-    public const int CardType = 7;
+    public const int Action = 4;
+    public const int PlayerId = 5;
+    public const int PlayerCard = 6;
+    public const int AnotherPlayerId = 7;
+    public const int SecondCardType = 7;
+    public const int PlayersCount = 14;
     
-    public static readonly byte[] BasePackage = 
+    public static readonly byte[] ProtocolPackage = 
     {
         0x31, 0x34, 0x38, 0x38 
     };
 
-    public static byte[] GetContent(byte[] buffer, int contentLength) =>
-        buffer.Skip(MaxFreeBytes - 1).Take(contentLength - MaxFreeBytes).ToArray();
-
-    public static bool IsQueryValid(byte[] buffer) =>
-        HasStart(buffer) && IsCorrectProtocol(buffer);
-
-    public static bool HasStart(byte[] buffer) => 
-        buffer[..3].SequenceEqual(BasePackage[..3]);
+    public static bool IsQueryValid(byte[] buffer, int contentLength) =>
+        contentLength > MaxBasePacketBytes &&
+        contentLength < MaxPacketSize &&
+        IsCorrectAction(buffer) && 
+        IsCorrectProtocol(buffer);
     
-    public static bool IsCorrectProtocol(byte[] buffer) => 
-        buffer[..3].SequenceEqual(BasePackage[..3]);
+    public static bool HasPlayerId(byte[] buffer) =>
+        buffer.Length > PlayerId;
     
+    public static bool HasCardType(byte[] buffer) =>
+        buffer.Length > PlayerCard;
     
-    public static byte[] CreatePackage(byte[] content, ActionType action, CardType card) => 
-        new PackageBuilder(content.Length)
-            .WithCommand(action)
-            .WithCard(card)
-            .Build();
+    public static bool HasAnotherPlayerId(byte[] buffer) =>
+        buffer.Length > AnotherPlayerId;
     
+    public static bool IsJoin(byte[] buffer) =>
+        buffer[Action] == (byte)ActionType.Join;
+    
+    public static bool IsReady(byte[] buffer) =>
+        buffer[Action] == (byte)ActionType.Ready;
+    
+    public static bool IsPlayCard(byte[] buffer) =>
+        buffer[Action] == (byte)ActionType.PlayCard;
+    
+    public static bool IsTakeCard(byte[] buffer) =>
+        buffer[Action] == (byte)ActionType.TakeCard;
+    
+    private static bool IsCorrectProtocol(byte[] buffer) => 
+        buffer[..3].SequenceEqual(ProtocolPackage[..3]);
+    
+    private static bool IsCorrectAction(byte[] buffer)
+    {
+        var hasAction = buffer.Length >= MaxBasePacketBytes;
+        if (!hasAction) return false;
+        var action = buffer[Action];
+        var isClientAction = Enum
+            .GetValues<ActionType>()
+            .Any(a => action == (byte)a);
+        return isClientAction;
+    } 
     
 }
