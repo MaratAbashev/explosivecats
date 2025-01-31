@@ -44,14 +44,12 @@ public class TcpServer
                             innerCancellationToken), innerCancellationToken.Token);
             } while (true);
         }
-        catch (TaskCanceledException tcex)
-        {
-            Console.WriteLine(tcex.Message);
-            //ignored
-        }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
+        }
+        finally
+        {
             StopAsync();
         }
     }
@@ -107,6 +105,10 @@ public class TcpServer
                 {
                     //обработка запросов клиента
                     var isValidAction = await playerHandler.TryHandleGameActions(ctxSource.Token);
+                    if (!isValidAction)
+                    {
+                        Console.WriteLine("Сервер не смог обработать запрос");
+                    }
                 }
             }
         }

@@ -6,8 +6,8 @@ public class Card
 {
     public CardType CardType { get; }
     public byte CardId { get; }
-
-    private Card(CardType cardType, byte cardNum)
+    
+    private Card(CardType cardType, byte cardNum = 0)
     {
         CardType = cardType;
         CardId = (byte)(cardNum - (byte)cardType);
@@ -18,8 +18,13 @@ public class Card
         return (byte)((byte)CardType + CardId);
     }
 
+    private static Card CreateNoneCard()
+    {
+        return new Card(CardType.None);
+    }
     public static Card FromByte(byte number)
     {
+        if (number == 0) return CreateNoneCard(); 
         if (number >= 1 && number <= 6)
             return new Card(CardType.Defuse, number);
         if (number >= 7 && number <= 10)

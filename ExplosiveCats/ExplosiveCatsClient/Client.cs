@@ -123,7 +123,7 @@ public class Client
     private static List<Card> MakeCardList(byte[] buffer)
     {
         var cardList = new List<Card>();
-        for (var i = CardByte; i < buffer[PlayersCount]; i++)
+        for (var i = CardByte; i < PlayersCount; i++)
         {
             cardList.Add(Card.FromByte(buffer[i]));
         }
