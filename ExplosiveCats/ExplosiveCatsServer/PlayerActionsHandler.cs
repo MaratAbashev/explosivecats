@@ -7,58 +7,16 @@ namespace ExplosiveCats;
 
 public class PlayerActionsHandler(Socket playerSocket)
 {
-    private readonly object _gameInitializeLock = new();
-    private Game? _game;
-    private Dictionary<Socket,Player>? _clients;
+    private Game _game;
+
+    public void SetGame(Game game)
+    {
+        _game = game;
+    }
     
-    public bool IsGameInitialized { get; private set; }
-    public async Task<bool> TryHandleJoin(int clientsCount, CancellationToken cancellationToken = default)
-    {
-        if (clientsCount >= 5) return false;
-        var buffer = new byte[5];
-        var contentLength = await TryGetContentLength(buffer, cancellationToken);
-        if (contentLength == -1) return false;
-
-        return IsQueryValid(buffer, contentLength) && IsJoin(buffer);
-    }
-
-    public async Task<bool> TryHandleReady(Dictionary<Socket,Player> allClients, 
-        CancellationToken ctx)
-    {
-        if (allClients[playerSocket].IsReady) return false;
-        var buffer = new byte[6];
-        var contentLength = await TryGetContentLength(buffer, ctx);
-        if (contentLength == -1) return false;
-        if (IsReady(buffer) && IsQueryValid(buffer, contentLength))
-        {
-            allClients[playerSocket].IsReady = true;
-            var players = allClients.Select(pair => pair.Value).ToList();
-            lock (_gameInitializeLock)
-            {
-                if (IsGameInitialized)
-                {
-                    return false;
-                }
-                if (players.All(player => player.IsReady))
-                {
-                    Game.InitializePlayers(players);
-                    _game = Game.GameValue;
-                    _clients = allClients;
-                    _game.DistributeCards();
-                    IsGameInitialized = true;
-                }
-            }
-            await BroadCastMessage(GetGameStartMessage, ctx);
-            return true;
-        }
-
-        return false;
-    }
-
     public async Task<bool> TryHandleGameActions(CancellationToken ctx)
     {
-        if (_clients == null || _game == null) return false;
-        if (!(_game.CurrentPlayer ?? new Player()).Equals(_clients[playerSocket])) return false;
+        if (!(_game.CurrentPlayer ?? new Player()).Equals(_game.Clients[playerSocket])) return false;
         var buffer = new byte[MaxPacketSize];
         var contentLength = await TryGetContentLength(buffer, ctx);
         if (contentLength == -1) return false;
@@ -165,7 +123,7 @@ public class PlayerActionsHandler(Socket playerSocket)
     private async Task BroadCastMessage(Func<Player, byte[]> getMessage, CancellationToken ctx)
     {
         var semaphore = new SemaphoreSlim(1);
-        foreach (var (client, player) in _clients)
+        foreach (var (client, player) in _game.Clients)
         {
             await semaphore.WaitAsync(ctx);
             var message = getMessage(player);
@@ -175,13 +133,7 @@ public class PlayerActionsHandler(Socket playerSocket)
         
         semaphore.Dispose();
     }
-
-    private byte[] GetGameStartMessage(Player player)
-    {
-        return PackageBuilder
-            .CreateFullPackage(player.Id, player.Cards, _clients.Count);
-    }
-
+    
     private byte[] GetExplodePlayerMessage(Player player)
     {
         return new PackageBuilder(ServerActionType.Explode, PlayerId + 1)
@@ -192,7 +144,7 @@ public class PlayerActionsHandler(Socket playerSocket)
     private async Task BroadCastMessageWithCard(Func<Player, Card, byte[]> getMessage, Card card, CancellationToken ctx)
     {
         var semaphore = new SemaphoreSlim(1);
-        foreach (var (client, player) in _clients)
+        foreach (var (client, player) in _game.Clients)
         {
             await semaphore.WaitAsync(ctx);
             var message = getMessage(player, card);
@@ -243,7 +195,7 @@ public class PlayerActionsHandler(Socket playerSocket)
         ICollection<Card> cards, CancellationToken ctx)
     {
         var semaphore = new SemaphoreSlim(1);
-        foreach (var (client, player) in _clients)
+        foreach (var (client, player) in _game.Clients)
         {
             await semaphore.WaitAsync(ctx);
             var message = getMessage(player, cards);
