@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ExplosiveCatsClient\ExplosiveCatsClient.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="InsertCardForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="MainPageForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Cards\" />
+    </ItemGroup>
+
+</Project>

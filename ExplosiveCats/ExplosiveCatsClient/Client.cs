@@ -42,7 +42,7 @@ public class Client
     public async Task<Result> GetResponse()
     {
         var buffer = new byte[MaxPacketSize];
-        await _clientSocket.ReceiveAsync(buffer, SocketFlags.None);
+        var contentLength = await _clientSocket.ReceiveAsync(buffer, SocketFlags.None);
         if (IsQueryValid(buffer))
         {
             var result = buffer[PackageHelper.Action] switch
@@ -56,7 +56,7 @@ public class Client
                 (byte)ServerActionType.GiveCard => Result.Success(ServerActionType.GiveCard, buffer[PlayerId],
                     [Card.FromByte(buffer[CardByte])], buffer[AnotherPlayerId]),
                 (byte)ServerActionType.PlayCard => Result.Success(ServerActionType.PlayCard, buffer[PlayerId], 
-                    [Card.FromByte(buffer[CardByte])]),
+                    MakeCardList(buffer, contentLength)),
                 (byte)ServerActionType.TakeCard => Result.Success(ServerActionType.TakeCard, buffer[PlayerId], 
                     [Card.FromByte(buffer[CardByte])]),
                 (byte)ServerActionType.PlayDefuse => Result.Success(ServerActionType.PlayDefuse, buffer[PlayerId], 
@@ -120,10 +120,10 @@ public class Client
         await _clientSocket.SendAsync(package, SocketFlags.None);
     }
     
-    private static List<Card> MakeCardList(byte[] buffer)
+    private static List<Card> MakeCardList(byte[] buffer, int contentLength = 14)
     {
         var cardList = new List<Card>();
-        for (var i = CardByte; i < PlayersCount; i++)
+        for (var i = CardByte; i < contentLength; i++)
         {
             cardList.Add(Card.FromByte(buffer[i]));
         }
