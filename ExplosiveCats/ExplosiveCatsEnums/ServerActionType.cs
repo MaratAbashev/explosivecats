@@ -8,5 +8,6 @@ public enum ServerActionType: byte
     PlayNope = 0x4E, // сыграть неть
     PlayDefuse = 0x44,
     StartGame = 0x53,
-    Explode = 0x45
+    Explode = 0x45,
+    Welcome = 0x4C
 }

@@ -2,6 +2,7 @@
 
 public enum CardType: byte
 {
+    None = 0,
     Defuse = 1,
     Attack = 7,
     Favor = 11,
@@ -30,3 +31,4 @@ public enum CardType: byte
 // 45-48 = бородакот
 // 49-52 = радугакот
 // 53-57 = взрывкот
+

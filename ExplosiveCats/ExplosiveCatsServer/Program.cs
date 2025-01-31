@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using TcpChatServer;
+using ExplosiveCats;
+using ExplosiveCatsEnums;
 
 var server = new TcpServer(new IPAddress(new byte[] { 127, 0, 0, 1 }), 5000);
 

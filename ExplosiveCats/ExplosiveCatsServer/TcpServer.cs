@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using static TcpChatServer.PackageHelper;
+using static ExplosiveCats.PackageHelper;
 
-namespace TcpChatServer;
+namespace ExplosiveCats;
 
 public class TcpServer
 {
@@ -70,44 +69,44 @@ public class TcpServer
             socket.ReceiveTimeout = MaxTimeout;
             socket.SendTimeout = MaxTimeout;
             
-            var buffer = new byte[MaxPacketSize];
-            var contentLength = await socket.ReceiveAsync(buffer, SocketFlags.None, ctxSource.Token);
+            var playerHandler = new PlayerActionsHandler(socket);
             
-            if (IsQueryValid(buffer) && IsJoin(buffer[PackageHelper.Action]))
-            {
-                _clients.Add(socket, new Player
-                {
-                    Id = (byte)_clients.Count,
-                    IsReady = false,
-                    MoveCount = 0,
-                });
-            }
-            else
+            var isJoin = await playerHandler.TryHandleJoin(_clients.Count, ctxSource.Token);
+            if (!isJoin)
             {
                 Console.WriteLine($"К нам пытался ворваться клиент {GetRemoteIpAddress(socket)}");
-                _clients.Remove(socket);
                 await socket.DisconnectAsync(false);
+                return;
             }
 
+            lock (_lock)
+            {
+                if (_clients.Count < 5)
+                {
+                    _clients.Add(socket,new Player
+                    {
+                        Id = (byte)_clients.Count,
+                        IsReady = false,
+                        Cards = new HashSet<Card>()
+                    });
+                }
+            }
+            byte[] message = PackageBuilder.CreateWelcomePackage(_clients[socket].Id);
+            await socket.SendAsync(message, SocketFlags.None, ctxSource.Token);
+            
             while (socket.Connected)
             {
                 //подготовка к игре
-                buffer = new byte[MaxPacketSize];
-                await socket.ReceiveAsync(buffer, SocketFlags.None, ctxSource.Token);
-                if (IsReady(buffer[PackageHelper.Action]))
+                var result = await playerHandler.TryHandleReady(_clients, ctxSource.Token);
+                if (result)
                 {
-                    _clients[socket].IsReady = true;
-                    if (_clients.Select(pair => pair.Value).All(player => player.IsReady))
-                    {
-                        _game = Game.GameValue;
-                        byte[] message = _game.DistributeCards();
-                        await BroadcastMessageAsync(message, ctxSource.Token);
-                    }
+                    Console.WriteLine("Game is starting");
+                    continue;
                 }
-
-                if (_game != null)
+                if (playerHandler.IsGameInitialized && !result)
                 {
                     //обработка запросов клиента
+                    var isValidAction = await playerHandler.TryHandleGameActions(ctxSource.Token);
                 }
             }
         }
@@ -121,19 +120,5 @@ public class TcpServer
     {
         return  IPAddress.Parse(((IPEndPoint)socket.RemoteEndPoint!).Address.ToString()) 
                      + ":" + ((IPEndPoint)socket.RemoteEndPoint).Port;        
-    }
-    
-    private async Task BroadcastMessageAsync(byte[] message, 
-        CancellationToken ctx)
-    {
-        var semaphore = new SemaphoreSlim(1);
-        foreach (var client in _clients.Keys)
-        {
-            await semaphore.WaitAsync(ctx);
-            await client.SendAsync(message, SocketFlags.None, ctx);
-            semaphore.Release(1);
-        }
-
-        semaphore.Dispose();
     }
 }
