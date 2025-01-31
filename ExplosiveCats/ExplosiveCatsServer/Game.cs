@@ -1,42 +1,133 @@
+using System.Net.Sockets;
 using ExplosiveCatsEnums;
 
 namespace ExplosiveCats;
 
-public class Game(List<Player> players)
+public class Game
 {
-    private static readonly Lazy<Game> Instance = new 
-        (() => new Game(_playersInitial ?? new List<Player>()));
-    private static List<Player>? _playersInitial;
+    private static readonly Lazy<Game> Instance = new
+        (() => new Game(_clientsInitial ?? new Dictionary<Socket,Player>()));
     
+    private static Dictionary<Socket,Player> _clientsInitial;
+    
+    private readonly List<Player> _players;
     private List<Card> _deck = new();
     
     public static Game GameValue => Instance.Value;
-    
-    public Player? CurrentPlayer{ get; set; }
-    
-    public static void InitializePlayers(List<Player> playersInitial)
+    public Dictionary<Socket,Player> Clients { get; }
+    public Player? CurrentPlayer { get; private set; }
+    public Card? LastDeletedExplosiveCard { get; set; }
+    public Player NextPlayer
     {
-        _playersInitial = playersInitial;
+        get
+        {
+            var playerPosition = _players.IndexOf(CurrentPlayer);
+            if (playerPosition == _players.Count - 1)
+            {
+                return _players[0];
+            }
+
+            return _players[playerPosition + 1];
+        }
     }
-    
-    public void DistributeCards()
+
+    public Game(Dictionary<Socket,Player> clients)
     {
-        InitializeDeck();
-        CurrentPlayer = players.FirstOrDefault(p => p.Id == 0);
+        Clients = clients;
+        _players = clients.Select(pair => pair.Value).ToList();
+        DistributeCards();
     }
-    
+
+    public static void InitializeClients(Dictionary<Socket, Player> clientsInitial)
+    {
+        _clientsInitial = clientsInitial;
+    }
+
+    public Card? GetLastCardFromDeck()
+    {
+        var card = _deck.LastOrDefault();
+        if (card == null) return null;
+        _deck.Remove(card);
+        return card;
+    }
+
+    public bool IsExistDefuseInPlayerCards()
+    {
+        return CurrentPlayer.Cards.Any(card => card.CardType == CardType.Defuse);
+    }
+
+    public void RemovePlayer()
+    {
+        _players.Remove(CurrentPlayer);
+    }
+
+    public void ShuffleDeck()
+    {
+        var random = new Random();
+        _deck = _deck.OrderBy(x => random.Next()).ToList();
+    }
+
+    public List<Card> GetLastThreeCards()
+    {
+        if (_deck.Count < 3)
+        {
+            return _deck;
+        }
+
+        return _deck.Skip(_deck.Count - 3).ToList();
+    }
+
+    public void SetNextPlayer()
+    {
+        CurrentPlayer = NextPlayer;
+    }
+
+    public void ProcessDefuseCard(Card defuseCard, int index)
+    {
+        if (LastDeletedExplosiveCard == null) return;
+        var defusedCardInHand = CurrentPlayer.Cards
+            .FirstOrDefault(card => defuseCard.CardType == card.CardType &&
+                                    defuseCard.CardId == card.CardId);
+        if (defusedCardInHand == null) return;
+        CurrentPlayer.Cards.Remove(defusedCardInHand);
+        _deck.Insert(index, defuseCard);
+    }
+
+    public void ProcessAttackCard()
+    {
+        if (CurrentPlayer.MoveCount > 1)
+        {
+            NextPlayer.MoveCount = (byte)(CurrentPlayer.MoveCount + 2);
+        }
+        else
+        {
+            NextPlayer.MoveCount = 2;
+        }
+    }
+
+    public bool ProcessManyMoveCount()
+    {
+        if (CurrentPlayer.MoveCount > 1)
+        {
+            CurrentPlayer.MoveCount--;
+            return false;
+        }
+
+        NextPlayer.MoveCount = 1;
+        return true;
+    }
+
     private void InitializeDeck()
     {
         for (int i = 1; i < 53; i++)
         {
             _deck.Add(Card.FromByte((byte)i));
         }
-        var random = new Random();
-        _deck = _deck.OrderBy(x => random.Next()).ToList();
-        
-        for (int i = 0; i < players.Count; i++)
+
+        ShuffleDeck();
+        for (int i = 0; i < _players.Count; i++)
         {
-            var player = players[i];
+            var player = _players[i];
             var defuseCard = _deck.First(c => c.CardType == CardType.Defuse);
             player.MoveCount = 1;
             player.Cards?.Add(defuseCard);
@@ -48,14 +139,20 @@ public class Game(List<Player> players)
                 _deck.Remove(randomCard);
             }
         }
-        var explosiveCatsNumber = Math.Min(players.Count - 1, 4);
+
+        var explosiveCatsNumber = Math.Min(_players.Count - 1, 4);
 
         for (int i = 53; i < 53 + explosiveCatsNumber; i++)
         {
             _deck.Add(Card.FromByte((byte)i));
         }
-        
-        var random2 = new Random();
-        _deck = _deck.OrderBy(x => random2.Next()).ToList();
+
+        ShuffleDeck();
+    }
+    
+    private void DistributeCards()
+    {
+        InitializeDeck();
+        CurrentPlayer = _players.FirstOrDefault(p => p.Id == 0);
     }
 }

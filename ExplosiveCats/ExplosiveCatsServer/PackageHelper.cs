@@ -11,6 +11,7 @@ public static class PackageHelper
     public const int Action = 4;
     public const int PlayerId = 5;
     public const int PlayerCard = 6;
+    public const int ExplosiveCatInsertionId = 6;
     public const int AnotherPlayerId = 7;
     public const int SecondCardType = 7;
     public const int PlayersCount = 14;
@@ -25,7 +26,11 @@ public static class PackageHelper
         contentLength <= MaxPacketSize &&
         IsCorrectAction(buffer) && 
         IsCorrectProtocol(buffer);
-    
+
+    public static ActionType DefineAction(byte[] buffer)
+    {
+        return (ActionType)buffer[Action];
+    }
     public static bool HasPlayerId(byte[] buffer) =>
         buffer.Length > PlayerId;
     
@@ -46,6 +51,12 @@ public static class PackageHelper
     
     public static bool IsTakeCard(byte[] buffer) =>
         buffer[Action] == (byte)ActionType.TakeCard;
+    
+    public static Card GetCard(byte[] buffer) =>
+        Card.FromByte(buffer[PlayerCard]);
+    
+    public static int GetExplosiveCatInsertionId(byte[] buffer) =>
+        buffer[ExplosiveCatInsertionId];
     
     private static bool IsCorrectProtocol(byte[] buffer) => 
         buffer[..3].SequenceEqual(ProtocolPackage[..3]);
