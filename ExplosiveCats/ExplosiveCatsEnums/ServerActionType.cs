@@ -10,4 +10,3 @@ public enum ServerActionType: byte
     StartGame = 0x53,
     Explode = 0x45,
     Welcome = 0x4C
-}
