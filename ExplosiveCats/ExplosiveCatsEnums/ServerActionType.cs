@@ -9,5 +9,7 @@ public enum ServerActionType : byte
     PlayDefuse = 0x44,
     StartGame = 0x53,
     Explode = 0x45,
-    Welcome = 0x4C
+    Welcome = 0x4C,
+    PlayFavor = 0x46, //подлижись
+    PlayCatCard = 0x43 //сыграть кошкокарту (парные)
 }
