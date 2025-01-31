@@ -1,5 +1,4 @@
 ﻿using ExplosiveCatsEnums;
-using TcpChatServer;
 
 namespace ExplosiveCatsClient;
 using static PackageHelper;
@@ -17,7 +16,7 @@ public class PackageBuilder
                 nameof(sizeOfContent));
         }
 
-        _package = new byte[MaxFreeBytes + sizeOfContent];
+        _package = new byte[sizeOfContent];
         CreateBasePackage();
     }
 

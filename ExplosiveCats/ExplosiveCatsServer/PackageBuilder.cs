@@ -87,7 +87,7 @@ public class PackageBuilder
 
     public static byte[] CreateWelcomePackage(byte playerId)
     {
-        return new PackageBuilder(ServerActionType.StartGame, PlayerId+1)
+        return new PackageBuilder(ServerActionType.Welcome, PlayerId+1)
             .WithPlayerId(playerId)
             .Build();
     }

@@ -21,8 +21,8 @@ public static class PackageHelper
     };
 
     public static bool IsQueryValid(byte[] buffer, int contentLength) =>
-        contentLength > MaxBasePacketBytes &&
-        contentLength < MaxPacketSize &&
+        contentLength >= MaxBasePacketBytes &&
+        contentLength <= MaxPacketSize &&
         IsCorrectAction(buffer) && 
         IsCorrectProtocol(buffer);
     

@@ -42,7 +42,7 @@ public class TcpServer
                     async () =>
                         await ProcessSocketConnect(connectionSocket,
                             innerCancellationToken), innerCancellationToken.Token);
-            } while (_clients.Count != 0);
+            } while (true);
         }
         catch (TaskCanceledException tcex)
         {
