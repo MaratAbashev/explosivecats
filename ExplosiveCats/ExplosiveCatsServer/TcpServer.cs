@@ -111,7 +111,6 @@ public class TcpServer
                     if (!isValidAction)
                     {
                         Console.WriteLine("Сервер не смог обработать запрос");
-                        await socket.DisconnectAsync(false);
                     }
                 }
             }
@@ -169,7 +168,7 @@ public class TcpServer
                     return false;
                 }
 
-                if (players.All(player => player.IsReady))
+                if (players.All(player => player.IsReady) && players.Count > 1)
                 {
                     Game.InitializeClients(_clients);
                     _game = Game.GameValue;

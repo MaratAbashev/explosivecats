@@ -1,7 +1,6 @@
-﻿using ExplosiveCats;
-using Card = ExplosiveCatsClient.Card;
+﻿using Card = ExplosiveCatsClient.Card;
 
-namespace ExplosiveCatsUi;
+namespace ExplosivaCatsUi2;
 
 public class Player(byte playerId)
 {

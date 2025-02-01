@@ -55,7 +55,9 @@ public class PlayerActionsHandler(Socket playerSocket)
             else
             {
                 await BroadCastMessage(GetExplodePlayerMessage, ctx);
-                _game.RemovePlayer();
+                var player = _game.CurrentPlayer;
+                _game.SetNextPlayer();
+                _game.RemovePlayer(player);
                 await playerSocket.DisconnectAsync(false, ctx);
             }
         }
@@ -74,7 +76,7 @@ public class PlayerActionsHandler(Socket playerSocket)
         var card = GetCard(buffer);
         var insertionIndex = GetExplosiveCatInsertionId(buffer);
         _game.ProcessDefuseCard(card, insertionIndex);
-        await BroadCastMessage(GetPlayDefuseCardMessage, ctx);
+        await BroadCastMessageWithCard(GetPlayDefuseCardMessage, card, ctx);
         var isSuccess = _game.ProcessManyMoveCount();
         if (!isSuccess) return;
         _game.SetNextPlayer();
@@ -102,7 +104,9 @@ public class PlayerActionsHandler(Socket playerSocket)
                 await BroadCastMessage(GetShuffleDeckMessage, ctx);
                 break;
             case CardType.SeeTheFuture:
-                var seemingCards = _game.GetLastThreeCards();
+                var seemingCards = new List<Card>();
+                seemingCards.Add(card);
+                seemingCards.AddRange( _game.GetLastThreeCards());
                 await BroadCastMessageWithCards(GetSeeTheFutureMessage, seemingCards, ctx);
                 break;
         }
@@ -176,10 +180,11 @@ public class PlayerActionsHandler(Socket playerSocket)
             .Build();
     }
 
-    private byte[] GetPlayDefuseCardMessage(Player player)
+    private byte[] GetPlayDefuseCardMessage(Player player, Card card)
     {
-        return new PackageBuilder(ServerActionType.PlayDefuse, PlayerId + 1)
+        return new PackageBuilder(ServerActionType.PlayDefuse, PlayerCard + 1)
             .WithPlayerId(_game.CurrentPlayer.Id)
+            .WithCard(card)
             .Build();
     }
 
@@ -209,15 +214,15 @@ public class PlayerActionsHandler(Socket playerSocket)
     {
         if (player.Equals(_game.CurrentPlayer))
         {
-            return new PackageBuilder(ServerActionType.PlayCard, PlayerCard + 3)
+            return new PackageBuilder(ServerActionType.PlayCard, PlayerCard + 4)
                 .WithPlayerId(player.Id)
                 .WithCards(cards)
                 .Build();
         }
 
-        var noneCards = Enumerable.Range(1,3).Select(i => Card.FromByte(0)).ToList();
+        var noneCards = Enumerable.Range(1,4).Select(i => Card.FromByte(0)).ToList();
         
-        return new PackageBuilder(ServerActionType.PlayCard, PlayerCard + 3)
+        return new PackageBuilder(ServerActionType.PlayCard, PlayerCard + 4)
             .WithPlayerId(_game.CurrentPlayer.Id)
             .WithCards(noneCards)
             .Build();

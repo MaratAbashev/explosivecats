@@ -11,7 +11,7 @@ public static class PackageHelper
     public const int Action = 4;
     public const int PlayerId = 5;
     public const int PlayerCard = 6;
-    public const int ExplosiveCatInsertionId = 6;
+    public const int ExplosiveCatInsertionId = 7;
     public const int AnotherPlayerId = 7;
     public const int SecondCardType = 7;
     public const int PlayersCount = 14;

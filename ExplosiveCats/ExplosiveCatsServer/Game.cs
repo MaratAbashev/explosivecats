@@ -56,9 +56,9 @@ public class Game
         return CurrentPlayer.Cards.Any(card => card.CardType == CardType.Defuse);
     }
 
-    public void RemovePlayer()
+    public void RemovePlayer(Player player)
     {
-        _players.Remove(CurrentPlayer);
+        _players.Remove(player);
     }
 
     public void ShuffleDeck()
@@ -90,7 +90,7 @@ public class Game
                                     defuseCard.CardId == card.CardId);
         if (defusedCardInHand == null) return;
         CurrentPlayer.Cards.Remove(defusedCardInHand);
-        _deck.Insert(index, defuseCard);
+        _deck.Insert(index, LastDeletedExplosiveCard);
     }
 
     public void ProcessAttackCard()

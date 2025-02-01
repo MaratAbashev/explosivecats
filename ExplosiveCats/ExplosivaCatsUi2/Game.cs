@@ -1,7 +1,7 @@
 ﻿using ExplosiveCatsClient;
 using ExplosiveCatsEnums;
 
-namespace ExplosiveCatsUi;
+namespace ExplosivaCatsUi2;
 
 public class Game
 {

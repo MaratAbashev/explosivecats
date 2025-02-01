@@ -40,10 +40,7 @@ public class PackageBuilder
 
     public PackageBuilder WithCards(ICollection<Card> cards)
     {
-        if (_package.Length < PlayersCount)
-        {
-            throw new InvalidOperationException();
-        }
+
         var byteArrayCards = cards.Select(card => card.ToByte()).ToArray();
         Array.Copy(byteArrayCards, 0, _package, PlayerCard, byteArrayCards.Length);
         return this;

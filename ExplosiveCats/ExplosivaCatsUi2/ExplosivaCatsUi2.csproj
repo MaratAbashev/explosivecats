@@ -9,18 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ExplosiveCatsClient\ExplosiveCatsClient.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Update="MainPageForm.cs">
         <SubType>Form</SubType>
       </Compile>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Cards\" />
-        
+      <ProjectReference Include="..\ExplosiveCatsClient\ExplosiveCatsClient.csproj" />
+      <ProjectReference Include="..\ExplosiveCatsEnums\ExplosiveCatsEnums.csproj" />
     </ItemGroup>
 
 </Project>

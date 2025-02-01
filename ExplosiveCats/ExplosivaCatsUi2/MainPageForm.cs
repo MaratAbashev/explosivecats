@@ -1,8 +1,7 @@
-﻿using System.Security.Permissions;
-using ExplosiveCatsClient;
+﻿using ExplosiveCatsClient;
 using ExplosiveCatsEnums;
 
-namespace ExplosiveCatsUi;
+namespace ExplosivaCatsUi2;
 
 public partial class MainPageForm : Form
 {
